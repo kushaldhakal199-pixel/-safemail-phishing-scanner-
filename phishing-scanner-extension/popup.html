@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeMail - Phishing & Link Scanner</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .logo-shield {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+    .shield {
+      width: 100%;
+      height: 100%;
+      background: #007bff;
+      clip-path: polygon(50% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%, 0% 0%);
+      position: relative;
+    }
+    .envelope-body {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      width: 20px;
+      height: 14px;
+      background: #87CEEB;
+      border-radius: 2px;
+    }
+    .envelope-flap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 8px solid #dc3545;
+    }
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #003d7a;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .logo-tagline {
+      font-size: 11px;
+      color: #003d7a;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .status.active {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .status.inactive {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .stats {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    .stats h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #666;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+      font-size: 13px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+    }
+    .developer {
+      margin-top: 4px;
+      font-size: 10px;
+      color: #999;
+      font-style: italic;
+    }
+    .version {
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <div class="logo-shield">
+        <div class="shield"></div>
+        <div class="envelope-body"></div>
+        <div class="envelope-flap"></div>
+      </div>
+      <div class="logo-text">
+        <div class="logo-title">SafeMail</div>
+        <div class="logo-tagline">Phishing & Link Scanner</div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="status" class="status active">
+    ✓ Scanner Active
+  </div>
+  
+  <div class="stats">
+    <h3>Scan Statistics</h3>
+    <div class="stat-item">
+      <span>Emails Scanned:</span>
+      <span id="scannedCount">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Threats Detected:</span>
+      <span id="threatsCount">0</span>
+    </div>
+  </div>
+  
+  <button id="toggleBtn">Disable Scanner</button>
+  
+  <div class="footer">
+    <div class="version">Version 1.0.0</div>
+    <div class="developer">Developed by Kushal</div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
+

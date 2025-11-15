@@ -1,0 +1,102 @@
+================================================================================
+  PHISHING EMAIL SCANNER - QUICK START GUIDE
+================================================================================
+
+✅ STEP 1: Icons Created!
+   The icon files have been automatically generated.
+
+✅ STEP 2: Load Extension in Chrome/Edge
+   
+   FOR CHROME:
+   1. Open Chrome browser
+   2. Type in address bar: chrome://extensions/
+   3. Toggle ON "Developer mode" (top-right corner)
+   4. Click "Load unpacked" button
+   5. Navigate to: E:\python\phishing-scanner-extension
+   6. Click "Select Folder"
+   
+   FOR EDGE:
+   1. Open Microsoft Edge browser
+   2. Type in address bar: edge://extensions/
+   3. Toggle ON "Developer mode" (bottom-left)
+   4. Click "Load unpacked" button
+   5. Navigate to: E:\python\phishing-scanner-extension
+   6. Click "Select Folder"
+
+✅ STEP 3: Verify Installation
+   - You should see "Phishing Email Scanner" in your extensions list
+   - Extension icon should appear in browser toolbar (shield icon)
+
+✅ STEP 4: Test the Extension
+   
+   1. Go to Gmail:
+      - Open: https://mail.google.com
+      - Sign in to your account
+   
+   2. OR go to Outlook:
+      - Open: https://outlook.live.com
+      - Sign in to your account
+   
+   3. Open any email:
+      - Click on an email to open it
+      - The extension automatically scans it
+   
+   4. Look for warnings:
+      - RED banner = High Risk phishing detected
+      - ORANGE banner = Medium Risk phishing detected
+      - No banner = Email appears safe
+
+✅ STEP 5: Test Extension Popup
+   - Click the extension icon in your browser toolbar
+   - You should see a popup showing scanner status
+   - You can enable/disable the scanner from here
+
+================================================================================
+  TROUBLESHOOTING
+================================================================================
+
+Problem: Extension won't load
+Solution: 
+  - Make sure all files are in E:\python\phishing-scanner-extension
+  - Check that manifest.json exists
+  - Verify icons folder has icon48.png and icon128.png
+
+Problem: No warnings showing
+Solution:
+  - Make sure you're on Gmail or Outlook web interface (not mobile app)
+  - Try refreshing the page (F5)
+  - Open an actual email (not just inbox view)
+  - Check browser console (F12) for errors
+
+Problem: Extension icon not visible
+Solution:
+  - Click the puzzle piece icon (extensions menu) in Chrome/Edge
+  - Pin "Phishing Email Scanner" to toolbar
+
+================================================================================
+  WHAT TO EXPECT
+================================================================================
+
+The extension will:
+✓ Automatically scan emails when you open them
+✓ Show warning banners for suspicious emails
+✓ Highlight risky links and sender information
+✓ Display risk level (High/Medium/Safe)
+✓ Show detailed list of detected issues
+
+The extension will NOT:
+✗ Send your emails anywhere (all scanning is local)
+✗ Modify your emails
+✗ Slow down your browser significantly
+✗ Require any login or account
+
+================================================================================
+  NEED MORE HELP?
+================================================================================
+
+See SETUP.md for detailed instructions
+See README.md for full documentation
+
+================================================================================
+
+
