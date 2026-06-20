@@ -1,198 +1,177 @@
 /**
- * Background Service Worker
- * Handles background tasks, storage, statistics, and API calls
+ * SafeMail Pro v4.0 — Background Service Worker
+ * No external API calls. Local scanning only.
  */
 
-// Listen for extension installation
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install') {
-    console.log('Phishing Email Scanner installed');
-    
-    // Set default settings
-    chrome.storage.local.set({
-      enabled: true,
-      riskThreshold: 'medium',
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  if (reason === 'install') {
+    await chrome.storage.local.set({
+      enabled:           true,
       showNotifications: true,
-      scanStats: {
-        scanned: 0,
-        threats: 0,
-        highRisk: 0,
-        mediumRisk: 0
+      notifyHighOnly:    false,
+      riskThreshold:     'medium',
+      scanStats:         { scanned: 0, threats: 0, highRisk: 0, mediumRisk: 0, safe: 0 },
+      threatHistory:     []
+    });
+  }
+  setupContextMenu();
+});
+
+chrome.runtime.onStartup.addListener(setupContextMenu);
+
+function setupContextMenu() {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({ id: 'sm-check-link', title: '🛡️ Check this link — SafeMail Pro', contexts: ['link'] });
+  });
+}
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  if (info.menuItemId !== 'sm-check-link') return;
+  const url = info.linkUrl || '';
+  let verdict = '✅ Looks clean — no obvious threats detected.';
+  try {
+    const u    = new URL(url);
+    const host = u.hostname.toLowerCase();
+    const shorteners = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','rb.gy','tiny.cc','cutt.ly'];
+    if (u.protocol === 'http:') verdict = '⚠️ Insecure HTTP link — data is not encrypted.';
+    else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) verdict = '🚨 Link uses a raw IP address — highly suspicious.';
+    else if (shorteners.some(s => host === s || host.endsWith('.' + s))) verdict = '⚠️ URL shortener — real destination is hidden.';
+  } catch (_) { verdict = '⚠️ Malformed URL — could not parse.'; }
+  chrome.notifications.create(`sm-ctx-${Date.now()}`, {
+    type: 'basic', iconUrl: 'icons/icon128.png',
+    title: '🛡️ SafeMail Pro — Link Check',
+    message: url.substring(0, 60) + '\n\n' + verdict,
+    priority: verdict.startsWith('🚨') ? 2 : 1
+  });
+});
+
+// ── Message Router ────────────────────────────────────────────────────
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  (async () => {
+    try {
+      switch (req.action) {
+        case 'scanResult':
+          await handleScanResult(req.data, sender.tab);
+          sendResponse({ ok: true });
+          break;
+        case 'updateBadge':
+          setBadge(req.riskLevel, sender.tab?.id);
+          sendResponse({ ok: true });
+          break;
+        case 'getStats':
+          const s = await chrome.storage.local.get(['scanStats', 'threatHistory']);
+          sendResponse({ ok: true, data: { ...s.scanStats, recentThreats: (s.threatHistory || []).slice(-5).reverse() } });
+          break;
+        case 'getHistory':
+          const h = await chrome.storage.local.get(['threatHistory']);
+          sendResponse({ ok: true, data: (h.threatHistory || []).slice(-(req.limit || 50)).reverse() });
+          break;
+        case 'exportHistory':
+          const exp = await chrome.storage.local.get(['threatHistory', 'scanStats']);
+          sendResponse({ ok: true, data: { exportedAt: new Date().toISOString(), version: '4.0', stats: exp.scanStats, threats: exp.threatHistory } });
+          break;
+        case 'clearAll':
+          await chrome.storage.local.set({ threatHistory: [], scanStats: { scanned: 0, threats: 0, highRisk: 0, mediumRisk: 0, safe: 0 } });
+          sendResponse({ ok: true });
+          break;
+        default:
+          sendResponse({ ok: false });
       }
-    });
-  }
+    } catch (e) {
+      sendResponse({ ok: false, error: e.message });
+    }
+  })();
+  return true;
 });
 
-// Unified message listener for all actions
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  // Handle scan results
-  if (request.action === 'scanResult') {
-    handleScanResult(request.data, sender.tab?.url);
-    sendResponse({ success: true });
+// ── Scan result handler ───────────────────────────────────────────────
+async function handleScanResult(result, tab) {
+  const { enabled = true, showNotifications = true, notifyHighOnly = false } =
+    await chrome.storage.local.get(['enabled', 'showNotifications', 'notifyHighOnly']);
+  if (!enabled) return;
+
+  // Update stats
+  const { scanStats = { scanned: 0, threats: 0, highRisk: 0, mediumRisk: 0, safe: 0 } } =
+    await chrome.storage.local.get(['scanStats']);
+  scanStats.scanned++;
+  if (result.riskLevel === 'high')   { scanStats.threats++; scanStats.highRisk++; }
+  else if (result.riskLevel === 'medium') { scanStats.threats++; scanStats.mediumRisk++; }
+  else scanStats.safe++;
+  await chrome.storage.local.set({ scanStats });
+
+  // Store in history
+  if (result.riskLevel !== 'safe') {
+    const { threatHistory = [] } = await chrome.storage.local.get(['threatHistory']);
+    threatHistory.push({
+      id:          Date.now(),
+      timestamp:   Date.now(),
+      riskLevel:   result.riskLevel,
+      score:       result.score,
+      provider:    result.provider || 'unknown',
+      subject:     result.subject || '',
+      sender:      result.sender?.email || '',
+      categories:  result.categories || [],
+      issues:      (result.issues || []).slice(0, 5),
+      iocs:        (result.iocs || []).slice(0, 5),
+      url:         tab?.url || ''
+    });
+    if (threatHistory.length > 200) threatHistory.splice(0, threatHistory.length - 200);
+    await chrome.storage.local.set({ threatHistory });
   }
-  
-  // Handle badge updates
-  if (request.action === 'updateBadge') {
-    updateBadge(request.riskLevel, sender.tab?.id);
-    sendResponse({ success: true });
+
+  // Browser notification
+  if (showNotifications && result.riskLevel !== 'safe') {
+    const skip = notifyHighOnly && result.riskLevel !== 'high';
+    if (!skip) sendNotification(result);
   }
-  
-  // Handle statistics updates
-  if (request.action === 'updateStats') {
-    updateStatistics(request.stats);
-    sendResponse({ success: true });
-  }
-  
-  return true; // Keep message channel open for async response
+}
+
+function sendNotification(result) {
+  const isHigh = result.riskLevel === 'high';
+  const subj   = result.subject ? '"' + result.subject.substring(0, 45) + (result.subject.length > 45 ? '…' : '') + '"' : 'an email';
+  const cats   = (result.categories || []).join(', ');
+  const issue  = result.issues?.[0] || 'Suspicious indicators detected';
+
+  chrome.notifications.create(`sm-${Date.now()}`, {
+    type:               'basic',
+    iconUrl:            'icons/icon128.png',
+    title:              `🛡️ SafeMail Pro — ${isHigh ? '🔴 HIGH RISK' : '🟠 MEDIUM RISK'}`,
+    message:            `In ${subj}\n• ${issue}${cats ? '\nType: ' + cats : ''}`,
+    priority:           isHigh ? 2 : 1,
+    requireInteraction: isHigh
+  });
+}
+
+chrome.notifications.onClicked.addListener((id) => {
+  if (!id.startsWith('sm-')) return;
+  chrome.notifications.clear(id);
+  const emailHosts = ['mail.google.com','outlook.','mail.yahoo.com','mail.proton.me','mail.zoho.com','fastmail.com','yandex.','mail.aol.com','icloud.com'];
+  chrome.tabs.query({}, tabs => {
+    const t = tabs.find(t => emailHosts.some(h => t.url?.includes(h)));
+    if (t) { chrome.tabs.update(t.id, { active: true }); chrome.windows.update(t.windowId, { focused: true }); }
+  });
 });
 
-// Handle scan results
-async function handleScanResult(scanResult, url) {
-  try {
-    // Update statistics
-    await updateStatistics({
-      scanned: 1,
-      threats: scanResult.riskLevel !== 'safe' ? 1 : 0,
-      highRisk: scanResult.riskLevel === 'high' ? 1 : 0,
-      mediumRisk: scanResult.riskLevel === 'medium' ? 1 : 0
-    });
-    
-    // Store scan history for risky emails
-    if (scanResult.riskLevel !== 'safe') {
-      await storeScanResult(scanResult, url);
-    }
-    
-    console.log('Phishing scan result:', {
-      riskLevel: scanResult.riskLevel,
-      score: scanResult.score,
-      issues: scanResult.issues.length
-    });
-  } catch (error) {
-    console.error('Error handling scan result:', error);
-  }
-}
-
-// Update statistics
-async function updateStatistics(newStats) {
-  try {
-    const { scanStats = { scanned: 0, threats: 0, highRisk: 0, mediumRisk: 0 } } = 
-      await chrome.storage.local.get(['scanStats']);
-    
-    // Increment statistics
-    scanStats.scanned = (scanStats.scanned || 0) + (newStats.scanned || 0);
-    scanStats.threats = (scanStats.threats || 0) + (newStats.threats || 0);
-    scanStats.highRisk = (scanStats.highRisk || 0) + (newStats.highRisk || 0);
-    scanStats.mediumRisk = (scanStats.mediumRisk || 0) + (newStats.mediumRisk || 0);
-    
-    await chrome.storage.local.set({ scanStats });
-  } catch (error) {
-    console.error('Error updating statistics:', error);
-  }
-}
-
-// Store scan results (optional feature)
-async function storeScanResult(scanResult, url) {
-  try {
-    const { scanHistory = [] } = await chrome.storage.local.get(['scanHistory']);
-    
-    scanHistory.push({
-      timestamp: Date.now(),
-      riskLevel: scanResult.riskLevel,
-      score: scanResult.score,
-      url: url || 'unknown',
-      issues: scanResult.issues.slice(0, 3), // Store top 3 issues
-      linksCount: scanResult.links?.length || 0
-    });
-    
-    // Keep only last 100 scans
-    if (scanHistory.length > 100) {
-      scanHistory.shift();
-    }
-    
-    await chrome.storage.local.set({ scanHistory });
-  } catch (error) {
-    console.error('Error storing scan result:', error);
-  }
-}
-
-// Optional: Check domain reputation via API
-async function checkDomainReputation(domain) {
-  // This is a placeholder - in production, you'd call a real API
-  // Example: VirusTotal, Google Safe Browsing, etc.
-  
-  // For now, return a mock response
-  return {
-    reputation: 'unknown',
-    isMalicious: false
-  };
-}
-
-// Update badge based on scan results
-function updateBadge(riskLevel, tabId) {
+// ── Badge ──────────────────────────────────────────────────────────────
+function setBadge(risk, tabId) {
   if (!tabId) return;
-  
-  const badgeColors = {
-    high: '#dc3545',
-    medium: '#fd7e14',
-    safe: '#28a745'
-  };
-  
-  chrome.action.setBadgeText({
-    text: riskLevel === 'safe' ? '' : '!',
-    tabId: tabId
-  });
-  
-  chrome.action.setBadgeBackgroundColor({
-    color: badgeColors[riskLevel] || '#666',
-    tabId: tabId
-  });
+  const colors = { high: '#dc2626', medium: '#d97706', safe: '#16a34a' };
+  const texts  = { high: '!!!', medium: '!', safe: '' };
+  chrome.action.setBadgeText({ text: texts[risk] ?? '', tabId });
+  chrome.action.setBadgeBackgroundColor({ color: colors[risk] ?? '#888', tabId });
 }
 
-// Clean up old scan history periodically
-chrome.alarms.create('cleanupHistory', { periodInMinutes: 60 * 24 }); // Daily
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === 'cleanupHistory') {
-    cleanupOldHistory();
-  }
+// ── Cleanup ────────────────────────────────────────────────────────────
+chrome.alarms.create('cleanup', { periodInMinutes: 1440 });
+chrome.alarms.onAlarm.addListener(async ({ name }) => {
+  if (name !== 'cleanup') return;
+  const { threatHistory = [] } = await chrome.storage.local.get(['threatHistory']);
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  await chrome.storage.local.set({ threatHistory: threatHistory.filter(r => r.timestamp > cutoff) });
 });
 
-async function cleanupOldHistory() {
-  try {
-    const { scanHistory = [] } = await chrome.storage.local.get(['scanHistory']);
-    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-    
-    const recentHistory = scanHistory.filter(scan => scan.timestamp > oneWeekAgo);
-    
-    await chrome.storage.local.set({ scanHistory: recentHistory });
-    console.log(`Cleaned up scan history. Kept ${recentHistory.length} recent scans.`);
-  } catch (error) {
-    console.error('Error cleaning up history:', error);
-  }
-}
-
-// Handle tab updates to clear badge when leaving email pages
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete') {
-    const isEmailPage = tab.url && (
-      tab.url.includes('mail.google.com') || 
-      tab.url.includes('outlook.')
-    );
-    
-    if (!isEmailPage) {
-      // Clear badge when not on email page
-      chrome.action.setBadgeText({ text: '', tabId: tabId });
-    }
-  }
+const emailHosts = ['mail.google.com','outlook.','mail.yahoo.com','mail.proton.me','mail.zoho.com','fastmail.com','yandex.','mail.aol.com','icloud.com'];
+chrome.tabs.onUpdated.addListener((tabId, { status }, tab) => {
+  if (status !== 'complete') return;
+  if (!emailHosts.some(h => tab.url?.includes(h))) chrome.action.setBadgeText({ text: '', tabId });
 });
-
-// Export functions for testing (if needed)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    updateStatistics,
-    storeScanResult,
-    updateBadge,
-    cleanupOldHistory
-  };
-}
-

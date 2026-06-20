@@ -1,454 +1,202 @@
-/**
- * Phishing Scanner UI Styles
- * Warning banners and visual indicators
- */
+/* SafeMail Pro v4.0 — Injected UI */
 
-/* Warning Banner Container */
-#phishing-scanner-warning {
-  margin: 10px 0;
-  padding: 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 14px;
+/* ── Banner ─────────────────────────────────────────────────────────── */
+#sm-banner {
+  margin: 10px 14px 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
   line-height: 1.5;
-  z-index: 10000;
-  animation: slideDown 0.3s ease-out;
+  z-index: 9999;
+  animation: sm-in 0.25s ease;
+}
+@keyframes sm-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+.sm-bar {
+  background: var(--sm-light, #f0fdf4);
+  border: 1px solid var(--sm-border, #bbf7d0);
+  border-left: 4px solid var(--sm-accent, #16a34a);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* High Risk - Red */
-.phishing-high {
-  border-left: 4px solid #dc3545;
-  background: linear-gradient(to right, #fff5f5, #ffffff);
-}
-
-.phishing-high .phishing-warning-header {
-  background-color: #dc3545;
-  color: white;
-}
-
-/* Medium Risk - Orange */
-.phishing-medium {
-  border-left: 4px solid #fd7e14;
-  background: linear-gradient(to right, #fff8f0, #ffffff);
-}
-
-.phishing-medium .phishing-warning-header {
-  background-color: #fd7e14;
-  color: white;
-}
-
-/* Safe - Green (for reference, though we don't show safe warnings) */
-.phishing-safe {
-  border-left: 4px solid #28a745;
-  background: linear-gradient(to right, #f0fff4, #ffffff);
-}
-
-.phishing-safe .phishing-warning-header {
-  background-color: #28a745;
-  color: white;
-}
-
-/* Warning Header */
-.phishing-warning-header {
-  padding: 12px 16px;
+/* Top row */
+.sm-toprow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 8px 8px 0 0;
-  font-weight: 600;
-}
-
-.phishing-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.phishing-warning-header strong {
-  flex: 1;
-  font-size: 15px;
-}
-
-.phishing-risk-info {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 10px 14px;
   gap: 8px;
 }
+.sm-left  { display:flex; align-items:center; gap:10px; }
+.sm-right { display:flex; align-items:center; gap:6px; flex-shrink:0; }
 
-.phishing-risk-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.phishing-risk-level {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.2);
-  font-weight: bold;
-  font-size: 16px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.phishing-close {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 24px;
-  line-height: 1;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: background-color 0.2s;
+/* Icon box */
+.sm-iconbox {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.sm-iconbox-safe   { background: #dcfce7; color: #16a34a; }
+.sm-iconbox-medium { background: #fef9c3; color: #d97706; }
+.sm-iconbox-high   { background: #fee2e2; color: #dc2626; }
 
-.phishing-close:hover {
-  background: rgba(255, 255, 255, 0.3);
+/* Title block */
+.sm-title-block { display:flex; flex-direction:column; gap:1px; }
+.sm-label { font-size: 14px; font-weight: 700; letter-spacing: 0.3px; }
+.sm-label-safe   { color: #16a34a; }
+.sm-label-medium { color: #d97706; }
+.sm-label-high   { color: #dc2626; }
+.sm-sublabel     { font-size: 11px; color: #666; }
+
+/* Score pill */
+.sm-scorepill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.sm-scorepill-safe   { background: #dcfce7; color: #15803d; }
+.sm-scorepill-medium { background: #fef3c7; color: #b45309; }
+.sm-scorepill-high   { background: #fee2e2; color: #b91c1c; }
+
+/* Toggle & dismiss buttons */
+.sm-toggle, .sm-dismiss {
+  width: 26px; height: 26px;
+  background: rgba(0,0,0,0.05);
+  border: none; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  color: #555; transition: background 0.15s;
+}
+.sm-toggle:hover, .sm-dismiss:hover { background: rgba(0,0,0,0.1); }
+
+/* Score bar */
+.sm-scorebar-track { height: 3px; background: rgba(0,0,0,0.08); margin: 0 14px 0; }
+.sm-scorebar-fill  { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.sm-scorebar-medium { background: #d97706; }
+.sm-scorebar-high   { background: #dc2626; }
+
+/* Body */
+.sm-body { padding: 10px 14px 4px; }
+
+/* Safe message */
+.sm-safe-msg { font-size: 13px; color: #15803d; padding: 4px 0 8px; }
+
+/* Category pills */
+.sm-cats { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+.sm-cat {
+  font-size: 10px; font-weight: 700; padding: 3px 9px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px;
+  background: #fee2e2; color: #991b1b;
 }
 
-.phishing-close:active {
-  background: rgba(255, 255, 255, 0.4);
+/* Section */
+.sm-section { margin-bottom: 10px; }
+.sm-sec-hd {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: #555;
+  display: flex; align-items: center; gap: 5px;
+  margin-bottom: 6px; padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.sm-icon-dot {
+  width: 6px; height: 6px;
+  background: currentColor; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
 }
 
-/* Warning Body */
-.phishing-warning-body {
-  padding: 16px;
-  background: white;
-  border-radius: 0 0 8px 8px;
+/* Issues list */
+.sm-list { margin: 0; padding-left: 16px; }
+.sm-list li { font-size: 12px; color: #333; margin: 4px 0; }
+.sm-list li::marker { color: #dc2626; }
+
+/* Link list */
+.sm-link-list { display: flex; flex-direction: column; gap: 5px; }
+.sm-link-item {
+  background: rgba(0,0,0,0.04); border-radius: 6px;
+  padding: 6px 9px; font-size: 11px; word-break: break-all;
+}
+.sm-link-item code { color: #b91c1c; font-family: 'Courier New', monospace; font-size: 11px; }
+.sm-link-tag { display: block; margin-top: 2px; font-size: 10px; color: #d97706; font-weight: 600; }
+
+/* Attachment list */
+.sm-att-list { display: flex; flex-direction: column; gap: 5px; }
+.sm-att-item { border-radius: 6px; padding: 7px 10px; font-size: 12px; }
+.sm-att-high   { background: #fef2f2; border: 1px solid #fecaca; }
+.sm-att-medium { background: #fffbeb; border: 1px solid #fde68a; }
+.sm-att-item { display: grid; grid-template-columns: 1fr auto; gap: 4px; align-items: center; }
+.sm-att-name   { font-weight: 600; color: #1a1a1a; font-size: 12px; }
+.sm-att-badge  { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; background: #dc2626; color: #fff; white-space: nowrap; }
+.sm-att-detail { grid-column: 1/-1; font-size: 11px; color: #666; margin-top: 2px; }
+.sm-att-scanned { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 7px 10px; font-size: 12px; display: grid; grid-template-columns: 1fr auto; gap: 3px; align-items: center; margin-bottom: 4px; }
+.sm-att-badge-safe { background: #16a34a; }
+.sm-safe-links { font-size: 11px; color: #15803d; padding: 4px 0 6px; margin: 0; }
+
+/* IOC list */
+.sm-ioc-list { background: #1e1e2e; border-radius: 6px; padding: 8px 10px; }
+.sm-ioc-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0; font-size: 11px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.sm-ioc-row:last-child { border-bottom: none; }
+.sm-ioc-type { background: rgba(99,102,241,0.25); color: #a5b4fc; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; text-transform: uppercase; }
+.sm-ioc-row code { color: #fbbf24; font-family: 'Courier New', monospace; font-size: 11px; flex: 1; word-break: break-all; }
+.sm-ioc-note { color: #6b7280; font-size: 10px; flex-shrink: 0; }
+
+/* Footer */
+.sm-foot {
+  font-size: 10px; color: #999; text-align: center;
+  padding: 6px 14px; border-top: 1px solid rgba(0,0,0,0.06);
 }
 
-.phishing-warning-body p {
-  margin: 0 0 12px 0;
-  font-weight: 500;
+/* Gmail/Outlook placement fix */
+[role="main"] #sm-banner { margin: 12px 18px 4px; }
+
+/* ── Link Warning Modal ───────────────────────────────────────────── */
+#sm-link-modal { position: fixed; inset: 0; z-index: 9999999; }
+.sml-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  animation: sml-in 0.18s ease;
 }
+@keyframes sml-in { from{opacity:0} to{opacity:1} }
 
-.phishing-warning-body strong {
-  color: #333;
+.sml-box {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  max-width: 460px; width: 92%; overflow: hidden;
+  animation: sml-up 0.22s ease;
 }
+@keyframes sml-up { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-/* Issues List */
-.phishing-issues {
-  margin: 12px 0;
-  padding-left: 20px;
-  list-style-type: disc;
+.sml-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; font-size: 14px; font-weight: 700; color: #fff;
 }
+.sml-head-high   { background: #dc2626; }
+.sml-head-medium { background: #d97706; }
+.sml-x { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; cursor: pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+.sml-x:hover { background: rgba(255,255,255,0.35); }
 
-.phishing-issues li {
-  margin: 8px 0;
-  color: #555;
-  line-height: 1.6;
-}
+.sml-body { padding: 20px; text-align: center; }
+.sml-risk-label { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.sml-risk-high   { color: #dc2626; }
+.sml-risk-medium { color: #d97706; }
+.sml-msg { color: #444; font-size: 13px; margin-bottom: 12px; }
+.sml-url-box { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 6px; padding: 9px 12px; text-align: left; word-break: break-all; margin-bottom: 12px; }
+.sml-url-box code { font-family: 'Courier New', monospace; font-size: 12px; color: #b91c1c; }
+.sml-issues { text-align: left; background: #fffbeb; border-left: 3px solid #d97706; border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 18px; }
+.sml-issues strong { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #333; }
+.sml-issues ul { margin:0; padding-left: 16px; }
+.sml-issues li { font-size: 12px; color: #555; margin: 3px 0; }
+.sml-btns { display: flex; gap: 10px; justify-content: center; }
+.sml-btn-cancel, .sml-btn-proceed { padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; min-width: 130px; transition: all 0.15s; }
+.sml-btn-cancel { background: #e5e7eb; color: #374151; }
+.sml-btn-cancel:hover { background: #d1d5db; }
+.sml-btn-proceed { color: #fff; }
+.sml-btn-high   { background: #dc2626; }.sml-btn-high:hover   { background: #b91c1c; }
+.sml-btn-medium { background: #d97706; }.sml-btn-medium:hover { background: #b45309; }
 
-.phishing-issues li::marker {
-  color: #dc3545;
-}
-
-/* Links Section */
-.phishing-links {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.phishing-links strong {
-  display: block;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.phishing-links ul {
-  margin: 8px 0;
-  padding-left: 20px;
-  list-style-type: disc;
-}
-
-.phishing-links li {
-  margin: 6px 0;
-  color: #555;
-  font-size: 13px;
-  word-break: break-all;
-}
-
-.phishing-links code {
-  background-color: #f5f5f5;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: #d63384;
-  border: 1px solid #e0e0e0;
-}
-
-/* Gmail-specific adjustments */
-[role="main"] #phishing-scanner-warning {
-  margin: 15px 20px;
-}
-
-/* Outlook-specific adjustments */
-[role="main"] #phishing-scanner-warning {
-  margin: 15px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  #phishing-scanner-warning {
-    margin: 10px;
-    font-size: 13px;
-  }
-
-  .phishing-warning-header {
-    padding: 10px 12px;
-    flex-wrap: wrap;
-  }
-
-  .phishing-warning-body {
-    padding: 12px;
-  }
-
-  .phishing-links code {
-    font-size: 11px;
-    word-break: break-all;
-  }
-}
-
-/* Accessibility */
-#phishing-scanner-warning:focus {
-  outline: 2px solid #005fcc;
-  outline-offset: 2px;
-}
-
-/* Animation for new warnings */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-.phishing-high .phishing-warning-header {
-  animation: pulse 2s ease-in-out 3;
-}
-
-/* Link Warning Modal Styles */
-.safemail-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999999;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.safemail-modal-content {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.safemail-modal-header {
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  border-radius: 12px 12px 0 0;
-}
-
-.safemail-modal-logo {
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.safemail-modal-close {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 28px;
-  line-height: 1;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: background-color 0.2s;
-}
-
-.safemail-modal-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.safemail-modal-body {
-  padding: 24px;
-  text-align: center;
-}
-
-.safemail-warning-icon {
-  font-size: 48px;
-  margin-bottom: 8px;
-}
-
-.safemail-modal-body h3 {
-  margin: 12px 0;
-  font-size: 20px;
-}
-
-.safemail-modal-body p {
-  margin: 12px 0;
-  color: #333;
-  line-height: 1.6;
-}
-
-.safemail-url-display {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 12px;
-  margin: 16px 0;
-  word-break: break-all;
-  text-align: left;
-}
-
-.safemail-url-display code {
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  color: #d63384;
-}
-
-.safemail-issues-list {
-  text-align: left;
-  margin: 20px 0;
-  background: #fff8f0;
-  border-left: 4px solid #fd7e14;
-  padding: 12px 16px;
-  border-radius: 4px;
-}
-
-.safemail-issues-list strong {
-  display: block;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.safemail-issues-list ul {
-  margin: 8px 0;
-  padding-left: 20px;
-}
-
-.safemail-issues-list li {
-  margin: 6px 0;
-  color: #555;
-  font-size: 13px;
-}
-
-.safemail-modal-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  justify-content: center;
-}
-
-.safemail-btn-cancel,
-.safemail-btn-proceed {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 120px;
-}
-
-.safemail-btn-cancel {
-  background-color: #6c757d;
-  color: white;
-}
-
-.safemail-btn-cancel:hover {
-  background-color: #5a6268;
-}
-
-.safemail-btn-proceed {
-  color: white;
-}
-
-.safemail-btn-proceed:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive modal */
 @media (max-width: 600px) {
-  .safemail-modal-content {
-    width: 95%;
-    margin: 20px;
-  }
-
-  .safemail-modal-buttons {
-    flex-direction: column;
-  }
-
-  .safemail-btn-cancel,
-  .safemail-btn-proceed {
-    width: 100%;
-  }
+  #sm-banner { margin: 6px; }
+  .sml-btns { flex-direction: column; }
+  .sml-btn-cancel, .sml-btn-proceed { width: 100%; }
 }
-

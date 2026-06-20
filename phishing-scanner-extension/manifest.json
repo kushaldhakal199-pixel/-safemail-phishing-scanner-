@@ -1,19 +1,32 @@
 {
   "manifest_version": 3,
-  "name": "SafeMail - Phishing & Link Scanner",
-  "short_name": "SafeMail",
-  "version": "1.0.0",
-  "description": "SafeMail: Advanced phishing, malware, and link scanner for Gmail/Outlook. Detects suspicious emails, attachments, and malicious content. Developed by Kushal.",
+  "name": "SafeMail Pro",
+  "short_name": "SafeMail Pro",
+  "version": "4.0.0",
+  "description": "Real-time phishing, malware & BEC scanner for Gmail, Outlook, Yahoo, ProtonMail, Zoho, Fastmail & more. Instant alerts for every email you open.",
   "permissions": [
     "activeTab",
     "storage",
-    "alarms"
+    "alarms",
+    "notifications",
+    "tabs",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://mail.google.com/*",
     "https://outlook.live.com/*",
     "https://outlook.office.com/*",
-    "https://outlook.office365.com/*"
+    "https://outlook.office365.com/*",
+    "https://mail.yahoo.com/*",
+    "https://mail.proton.me/*",
+    "https://app.protonmail.ch/*",
+    "https://mail.zoho.com/*",
+    "https://www.fastmail.com/*",
+    "https://app.fastmail.com/*",
+    "https://webmail.yandex.com/*",
+    "https://webmail.yandex.ru/*",
+    "https://mail.aol.com/*",
+    "https://www.icloud.com/mail/*"
   ],
   "content_scripts": [
     {
@@ -21,7 +34,17 @@
         "https://mail.google.com/*",
         "https://outlook.live.com/*",
         "https://outlook.office.com/*",
-        "https://outlook.office365.com/*"
+        "https://outlook.office365.com/*",
+        "https://mail.yahoo.com/*",
+        "https://mail.proton.me/*",
+        "https://app.protonmail.ch/*",
+        "https://mail.zoho.com/*",
+        "https://www.fastmail.com/*",
+        "https://app.fastmail.com/*",
+        "https://webmail.yandex.com/*",
+        "https://webmail.yandex.ru/*",
+        "https://mail.aol.com/*",
+        "https://www.icloud.com/mail/*"
       ],
       "js": ["scanner.js", "content.js"],
       "css": ["ui.css"],
@@ -32,15 +55,14 @@
     "service_worker": "background.js"
   },
   "icons": {
-    "48": "icons/icon48.png",
+    "48":  "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "48": "icons/icon48.png",
+      "48":  "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   }
 }
-
